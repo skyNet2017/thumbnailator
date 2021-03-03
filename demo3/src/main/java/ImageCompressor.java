@@ -2,9 +2,10 @@ import it.sephiroth.android.library.exif2.ExifInterface;
 import it.sephiroth.android.library.exif2.ExifTag;
 import net.coobird.thumbnailator.Thumbnails;
 
-import java.io.File;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,11 +92,27 @@ public class ImageCompressor {
             }
 
 
+            File tmp = new File(out.getAbsolutePath()+".tmp");
             Thumbnails.of(file)
                     .outputFormat("jpg")
                     .outputQuality(quality*1.0f/100f)
                     .scale(1.0)
-                    .toFile(out);
+                    .toFile(tmp);
+            if(file.length() < tmp.length()){
+                System.out.println( "压缩后反而变大,文件不要了,不压了: "+file.getAbsolutePath());
+                tmp.delete();
+                return true;
+            }
+            //tmp拷贝到out,同时删除tmp
+           boolean success1 =  copyFile(tmp,out.getAbsolutePath());
+            if(!success1){
+                System.out.println( "文件拷贝失败,删除临时文件: "+tmp.getAbsolutePath());
+                tmp.delete();
+                return false;
+            }
+            tmp.delete();
+
+            //new FileInputStream(tmp).readAllBytes();
             if(exif != null){
                 exif.writeExif(out.getAbsolutePath());
                 printExif(out);
@@ -198,4 +215,51 @@ public class ImageCompressor {
         }
         return map;
     }
+
+
+    /**
+     * 根据文件路径拷贝文件
+     * @param src 源文件
+     * @param destPath 目标文件路径
+     * @return boolean 成功true、失败false
+     */
+    static boolean copyFile(File src, String destPath) {
+        boolean result = false;
+        if ((src == null) || (destPath== null)) {
+            return result;
+        }
+        File dest= new File(destPath );
+        if (dest!= null && dest.exists()) {
+            dest.delete(); // delete file
+        }
+        try {
+            dest.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        FileChannel srcChannel = null;
+        FileChannel dstChannel = null;
+
+        try {
+            srcChannel = new FileInputStream(src).getChannel();
+            dstChannel = new FileOutputStream(dest).getChannel();
+            srcChannel.transferTo(0, srcChannel.size(), dstChannel);
+            result = true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return result;
+        }
+        try {
+            srcChannel.close();
+            dstChannel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 }
