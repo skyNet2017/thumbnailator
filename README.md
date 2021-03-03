@@ -1,3 +1,54 @@
+# exif读取:
+
+https://github.com/sephiroth74/Android-Exif-Extended  移植到java
+
+```java
+ExifInterface exif = new ExifInterface();
+exif.readExif( filename, ExifInterface.Options.OPTION_ALL );
+
+// list of all tags found
+List<ExifTag> all_tags = exif.getAllTags();
+
+// jpeg quality
+int jpeg_quality =  exif.getQualityGuess()
+
+// image size
+int[] imagesize = exif.getImageSize();
+
+// process used to create the jpeg file
+short process = exif.getJpegProcess();
+
+// gps lat-lon
+double[] latlon = exif.getLatLongAsDoubles();
+
+
+....
+// save
+exif.writeExif( src_file, dst_file );
+```
+
+
+
+
+
+
+
+# 原图尺寸不变,压缩到某个质量,并把exif写入:
+
+```java
+ImageCompressor.compressToQuality(file.getAbsolutePath(),70);
+```
+
+
+
+
+
+
+
+
+
+
+
 _*October 17, 2020: Thumbnailator 0.4.13 has been released!
 See [Changes](https://github.com/coobird/thumbnailator/wiki/Changes) for details.*_
 
