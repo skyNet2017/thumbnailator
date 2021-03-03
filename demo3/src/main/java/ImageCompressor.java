@@ -9,10 +9,13 @@ import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ImageCompressor {
 
      static Map<Integer,String> tagDes = getDes();
+    volatile static ExecutorService service;
 
 
     private static Map<Integer, String> getDes() {
@@ -40,10 +43,36 @@ public class ImageCompressor {
 
     }
 
+    public static void compressImagesInDir(final String dirPath, final int quality){
+        if(service == null){
+            service = Executors.newFixedThreadPool(8);
+        }
+
+        service.execute(new Runnable() {
+            @Override
+            public void run() {
+                File dir = new File(dirPath);
+                File[] files = dir.listFiles();
+                for (File file1 : files) {
+                    if(file1.isDirectory()){
+                        compressImagesInDir(dirPath,quality);
+                    }else {
+                        if(file1.getName().endsWith(".jpg")  || file1.getName().endsWith(".png") || file1.getName().endsWith(".jpeg")
+                                || file1.getName().endsWith(".JPG")|| file1.getName().endsWith(".PNG")|| file1.getName().endsWith(".JPEG")){
+                            ImageCompressor.compressToQuality(file1.getAbsolutePath(),quality);
+                        }
+                    }
+                }
+            }
+        });
+
+    }
+
     public static boolean compressToQuality(String path,int quality){
         if(tagDes == null || tagDes.isEmpty()){
             tagDes = getDes();
         }
+
         try {
             File file = new File(path);
             String name = file.getName();
