@@ -7,6 +7,7 @@
     <modules>
         <module>demo3</module>
         <module>exif</module>
+        <module>mozjpeg</module>
     </modules>
     <packaging>pom</packaging>
     <name>thumbnailator</name>

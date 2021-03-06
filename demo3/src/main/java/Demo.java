@@ -17,8 +17,10 @@ public class Demo {
         long sizeBefore = 0;
         long sizeAfter = 0;
         for (File file1 : files) {
-            if (file1.getName().endsWith(".jpg") || file1.getName().endsWith(".JPG") || file1.getName().endsWith(".webp") || file1.getName().endsWith(".png")
-                    || file1.getName().endsWith(".gif") || file1.getName().endsWith(".jpeg")) {
+            if (file1.getName().endsWith(".jpg") || file1.getName().endsWith(".JPG")
+                    || file1.getName().endsWith(".png")
+                    || file1.getName().endsWith(".PNG")
+                    || file1.getName().endsWith(".jpeg") || file1.getName().endsWith(".JPEG")) {
                 sizeBefore += file1.length();
                 File destFile = new File(dir2, file1.getName());
                 ImageCompressor.compressToQuality(file1.getAbsolutePath(), destFile.getAbsolutePath(), 80);
