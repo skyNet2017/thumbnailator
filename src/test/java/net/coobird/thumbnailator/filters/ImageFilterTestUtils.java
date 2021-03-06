@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import static org.junit.Assert.assertEquals;
 
 public class ImageFilterTestUtils {
-    private static final int[] IMAGE_TYPES = new int[] {
+    private static final int[] IMAGE_TYPES = new int[]{
             BufferedImage.TYPE_INT_ARGB,
             BufferedImage.TYPE_INT_RGB,
             BufferedImage.TYPE_BYTE_GRAY,

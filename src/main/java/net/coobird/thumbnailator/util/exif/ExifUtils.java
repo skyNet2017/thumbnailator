@@ -38,147 +38,149 @@ import org.w3c.dom.NodeList;
 /**
  * An utility class used to obtain the orientation information from a given
  * Exif metadata.
- * 
- * @author coobird
  *
+ * @author coobird
  */
 public final class ExifUtils {
-	
-	private static final String EXIF_MAGIC_STRING = "Exif";
-	
-	/**
-	 * This class should not be instantiated.
-	 */
-	private ExifUtils() {};
-	
-	/**
-	 * Returns the orientation obtained from the Exif metadata.
-	 * 
-	 * @param reader		An {@link ImageReader} which is reading the
-	 * 						target image.
-	 * @param imageIndex	The index of the image from which the Exif
-	 * 						metadata should be read from.
-	 * @return				The orientation information obtained from the
-	 * 						Exif metadata, as a {@link Orientation} enum.
-	 * @throws IOException				When an error occurs during reading.
-	 * @throws IllegalArgumentException	If the {@link ImageReader} does not
-	 * 									have the target image set, or if the
-	 * 									reader does not have a JPEG open.
-	 */
-	public static Orientation getExifOrientation(ImageReader reader, int imageIndex) throws IOException {
-		IIOMetadata metadata = reader.getImageMetadata(imageIndex);
-		Node rootNode = metadata.getAsTree("javax_imageio_jpeg_image_1.0");
 
-		NodeList childNodes = rootNode.getChildNodes();
+    private static final String EXIF_MAGIC_STRING = "Exif";
 
-		// Look for the APP1 containing Exif data, and retrieve it.
-		for (int i = 0; i < childNodes.getLength(); i++) {
-			if ("markerSequence".equals(childNodes.item(i).getNodeName())) {
-				NodeList markerSequenceChildren = childNodes.item(i).getChildNodes();
+    /**
+     * This class should not be instantiated.
+     */
+    private ExifUtils() {
+    }
 
-				for (int j = 0; j < markerSequenceChildren.getLength(); j++) {
-					IIOMetadataNode metadataNode = (IIOMetadataNode) (markerSequenceChildren.item(j));
+    ;
 
-					byte[] bytes = (byte[]) metadataNode.getUserObject();
-					if (bytes == null) {
-						continue;
-					}
+    /**
+     * Returns the orientation obtained from the Exif metadata.
+     *
+     * @param reader     An {@link ImageReader} which is reading the
+     *                   target image.
+     * @param imageIndex The index of the image from which the Exif
+     *                   metadata should be read from.
+     * @throws IOException              When an error occurs during reading.
+     * @throws IllegalArgumentException If the {@link ImageReader} does not
+     *                                  have the target image set, or if the
+     *                                  reader does not have a JPEG open.
+     * @return The orientation information obtained from the
+     * Exif metadata, as a {@link Orientation} enum.
+     */
+    public static Orientation getExifOrientation(ImageReader reader, int imageIndex) throws IOException {
+        IIOMetadata metadata = reader.getImageMetadata(imageIndex);
+        Node rootNode = metadata.getAsTree("javax_imageio_jpeg_image_1.0");
 
-					byte[] magicNumber = new byte[4];
-					ByteBuffer.wrap(bytes).get(magicNumber);
+        NodeList childNodes = rootNode.getChildNodes();
 
-					if (EXIF_MAGIC_STRING.equals(new String(magicNumber))) {
-						return getOrientationFromExif(bytes);
-					}
-				}
-			}
-		}
+        // Look for the APP1 containing Exif data, and retrieve it.
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            if ("markerSequence".equals(childNodes.item(i).getNodeName())) {
+                NodeList markerSequenceChildren = childNodes.item(i).getChildNodes();
 
-		return null;
-	}
+                for (int j = 0; j < markerSequenceChildren.getLength(); j++) {
+                    IIOMetadataNode metadataNode = (IIOMetadataNode) (markerSequenceChildren.item(j));
 
-	private static Orientation getOrientationFromExif(byte[] exifData) {
-		// Needed to make byte-wise reading easier.
-		ByteBuffer buffer = ByteBuffer.wrap(exifData);
+                    byte[] bytes = (byte[]) metadataNode.getUserObject();
+                    if (bytes == null) {
+                        continue;
+                    }
 
-		byte[] exifId = new byte[4];
-		buffer.get(exifId);
+                    byte[] magicNumber = new byte[4];
+                    ByteBuffer.wrap(bytes).get(magicNumber);
 
-		if (!EXIF_MAGIC_STRING.equals(new String(exifId))) {
-			return null;
-		}
+                    if (EXIF_MAGIC_STRING.equals(new String(magicNumber))) {
+                        return getOrientationFromExif(bytes);
+                    }
+                }
+            }
+        }
 
-		// read the \0 after the Exif
-		buffer.get();
-		// read the padding byte
-		buffer.get();
+        return null;
+    }
 
-		byte[] tiffHeader = new byte[8];
-		buffer.get(tiffHeader);
+    private static Orientation getOrientationFromExif(byte[] exifData) {
+        // Needed to make byte-wise reading easier.
+        ByteBuffer buffer = ByteBuffer.wrap(exifData);
 
-		/*
-		 * The first 2 bytes of the TIFF header contains either:
-		 *   "II" for Intel byte alignment (little endian), or
-		 *   "MM" for Motorola byte alignment (big endian)
-		 */
-		ByteOrder bo;
-		if (tiffHeader[0] == 'I' && tiffHeader[1] == 'I') {
-			bo = ByteOrder.LITTLE_ENDIAN;
-		} else {
-			bo = ByteOrder.BIG_ENDIAN;
-		}
+        byte[] exifId = new byte[4];
+        buffer.get(exifId);
 
-		byte[] numFields = new byte[2];
-		buffer.get(numFields);
+        if (!EXIF_MAGIC_STRING.equals(new String(exifId))) {
+            return null;
+        }
 
-		int nFields = ByteBuffer.wrap(numFields).order(bo).getShort();
+        // read the \0 after the Exif
+        buffer.get();
+        // read the padding byte
+        buffer.get();
 
-		byte[] ifd = new byte[12];
-		for (int i = 0; i < nFields; i++) {
-			buffer.get(ifd);
-			IfdStructure ifdStructure = readIFD(ifd, bo);
+        byte[] tiffHeader = new byte[8];
+        buffer.get(tiffHeader);
 
-			// Return the orientation from the orientation IFD
-			if (ifdStructure.getTag() == 0x0112) {
-				return Orientation.typeOf(ifdStructure.getOffsetValue());
-			}
-		}
+        /*
+         * The first 2 bytes of the TIFF header contains either:
+         *   "II" for Intel byte alignment (little endian), or
+         *   "MM" for Motorola byte alignment (big endian)
+         */
+        ByteOrder bo;
+        if (tiffHeader[0] == 'I' && tiffHeader[1] == 'I') {
+            bo = ByteOrder.LITTLE_ENDIAN;
+        } else {
+            bo = ByteOrder.BIG_ENDIAN;
+        }
 
-		return null;
-	}
+        byte[] numFields = new byte[2];
+        buffer.get(numFields);
 
-	private static IfdStructure readIFD(byte[] ifd, ByteOrder bo) {
-		ByteBuffer buffer = ByteBuffer.wrap(ifd).order(bo);
+        int nFields = ByteBuffer.wrap(numFields).order(bo).getShort();
 
-		short tag = buffer.getShort();
-		short type = buffer.getShort();
-		int count = buffer.getInt();
+        byte[] ifd = new byte[12];
+        for (int i = 0; i < nFields; i++) {
+            buffer.get(ifd);
+            IfdStructure ifdStructure = readIFD(ifd, bo);
 
-		IfdType ifdType = IfdType.typeOf(type);
-		int offsetValue = 0;
-		
-		/*
-		 * Per section 4.6.2 of the Exif Spec, if value is smaller than
-		 * 4 bytes, it will exist in the earlier byte.
-		 */
-		int byteSize = count * ifdType.size();
+            // Return the orientation from the orientation IFD
+            if (ifdStructure.getTag() == 0x0112) {
+                return Orientation.typeOf(ifdStructure.getOffsetValue());
+            }
+        }
 
-		if (byteSize <= 4) {
-			if (ifdType == IfdType.SHORT) {
-				for (int i = 0; i < count; i++) {
-					offsetValue = buffer.getShort();
-				}
-			} else if (ifdType == IfdType.BYTE || ifdType == IfdType.ASCII || ifdType == IfdType.UNDEFINED) {
-				for (int i = 0; i < count; i++) {
-					offsetValue = buffer.get();
-				}
-			} else {
-				offsetValue = buffer.getInt();
-			}
-		} else {
-			offsetValue = buffer.getInt();
-		}
-		
-		return new IfdStructure(tag, type, count, offsetValue);
-	}
+        return null;
+    }
+
+    private static IfdStructure readIFD(byte[] ifd, ByteOrder bo) {
+        ByteBuffer buffer = ByteBuffer.wrap(ifd).order(bo);
+
+        short tag = buffer.getShort();
+        short type = buffer.getShort();
+        int count = buffer.getInt();
+
+        IfdType ifdType = IfdType.typeOf(type);
+        int offsetValue = 0;
+
+        /*
+         * Per section 4.6.2 of the Exif Spec, if value is smaller than
+         * 4 bytes, it will exist in the earlier byte.
+         */
+        int byteSize = count * ifdType.size();
+
+        if (byteSize <= 4) {
+            if (ifdType == IfdType.SHORT) {
+                for (int i = 0; i < count; i++) {
+                    offsetValue = buffer.getShort();
+                }
+            } else if (ifdType == IfdType.BYTE || ifdType == IfdType.ASCII || ifdType == IfdType.UNDEFINED) {
+                for (int i = 0; i < count; i++) {
+                    offsetValue = buffer.get();
+                }
+            } else {
+                offsetValue = buffer.getInt();
+            }
+        } else {
+            offsetValue = buffer.getInt();
+        }
+
+        return new IfdStructure(tag, type, count, offsetValue);
+    }
 }

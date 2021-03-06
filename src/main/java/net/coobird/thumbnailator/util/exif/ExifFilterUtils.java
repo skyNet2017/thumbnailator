@@ -33,25 +33,27 @@ import net.coobird.thumbnailator.filters.Rotation;
  * An utility class which returns a suitable {@link ImageFilter} to perform
  * the transformations necessary to properly orient an image according to the
  * Exif metadata.
- * 
- * @author coobird
  *
+ * @author coobird
  */
 public final class ExifFilterUtils {
-	/**
-	 * This class should not be instantiated.
-	 */
-	private ExifFilterUtils() {};
-	
-	/**
-	 * Returns a {@link ImageFilter} which will perform the transformations
-	 * required to properly orient the thumbnail according to the Exif
-	 * orientation.
-	 * 
-	 * @param orientation	The Exif orientation
-	 * @return				{@link ImageFilter}s required to properly
-	 * 						orient the image.
-	 */
+    /**
+     * This class should not be instantiated.
+     */
+    private ExifFilterUtils() {
+    }
+
+    ;
+
+    /**
+     * Returns a {@link ImageFilter} which will perform the transformations
+     * required to properly orient the thumbnail according to the Exif
+     * orientation.
+     *
+     * @param orientation The Exif orientation
+     * @return                {@link ImageFilter}s required to properly
+     * orient the image.
+     */
     public static ImageFilter getFilterForOrientation(Orientation orientation) {
         Pipeline filters = new Pipeline();
 

@@ -39,135 +39,136 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
 import static org.junit.Assert.*;
 
 /**
  * Tests to see whether memory conservation code is triggered when the
- * {@code thumbnailator.conserveMemoryWorkaround} system property is set. 
+ * {@code thumbnailator.conserveMemoryWorkaround} system property is set.
  * <p>
  * These tests will not necessarily be successful, as the workaround is only
  * triggered under conditions where the JVM memory is deemed to be low, which
  * will depend upon the environment in which the tests are run.
  */
 public class Issue69FileImageSourceTest {
-	
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
-	public File tempFile;
-	public static int SIZE = 8000;
-	
-	@Before
-	public void prepareSource() throws IOException {
-		tempFile = tempFolder.newFile("temp.jpg");
-		
-		BufferedImage img = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_RGB);
-		Graphics2D g = img.createGraphics();
-		g.setPaint(new GradientPaint(0, 0, Color.blue, SIZE, SIZE, Color.red));
-		g.dispose();
-		ImageIO.write(img, "jpg", tempFile);
-		
-		System.setProperty("thumbnailator.conserveMemoryWorkaround", "");
-	}
-	
-	@Test
-	public void fromFileBySizeWorkaroundDisabled() throws IOException {
-		// given
-		ThumbnailParameter param = new ThumbnailParameterBuilder().size(200, 200).build();
-		FileImageSource source = new FileImageSource(tempFile);
-		source.setThumbnailParameter(param);
-		
-		// when
-		BufferedImage img = source.read();
-		
-		// then
-		assertEquals(SIZE, img.getWidth());
-		assertEquals(SIZE, img.getHeight());
-	}
-	
-	@Test
-	public void fromFileBySizeWorkaroundEnabled() throws IOException {
-		// given
-		System.setProperty("thumbnailator.conserveMemoryWorkaround", "true");
-		
-		ThumbnailParameter param = new ThumbnailParameterBuilder().size(200, 200).build();
-		FileImageSource source = new FileImageSource(tempFile);
-		source.setThumbnailParameter(param);
-		
-		// when
-		BufferedImage img = source.read();
-		
-		// then
-		assertTrue(img.getWidth() < SIZE);
-		assertTrue(img.getWidth() >= 600);
-		assertTrue(img.getHeight() < SIZE);
-		assertTrue(img.getHeight() >= 600);
-	}
-	
-	@Test
-	public void fromFileByScaleWorkaroundDisabled() throws IOException {
-		// given
-		ThumbnailParameter param = new ThumbnailParameterBuilder().scale(0.1).build();
-		FileImageSource source = new FileImageSource(tempFile);
-		source.setThumbnailParameter(param);
-		
-		// when
-		BufferedImage img = source.read();
-		
-		// then
-		assertEquals(SIZE, img.getWidth());
-		assertEquals(SIZE, img.getHeight());
-	}
-	
-	@Test
-	public void fromFileByScaleWorkaroundEnabled() throws IOException {
-		// given
-		System.setProperty("thumbnailator.conserveMemoryWorkaround", "true");
-		
-		ThumbnailParameter param = new ThumbnailParameterBuilder().scale(0.1).build();
-		FileImageSource source = new FileImageSource(tempFile);
-		source.setThumbnailParameter(param);
-		
-		// when
-		BufferedImage img = source.read();
-		
-		// then
-		assertTrue(img.getWidth() < SIZE);
-		assertTrue(img.getWidth() >= 600);
-		assertTrue(img.getHeight() < SIZE);
-		assertTrue(img.getHeight() >= 600);
-	}
 
-	// Reproduces Issue 161.
-	// https://github.com/coobird/thumbnailator/issues/161
-	@Test
-	public void usingThumbnailsWidthWorkaroundEnabled() throws IOException {
-		// given
-		System.setProperty("thumbnailator.conserveMemoryWorkaround", "true");
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
+    public File tempFile;
+    public static int SIZE = 8000;
 
-		// when
-		BufferedImage img = Thumbnails.of(tempFile).width(600).asBufferedImage();
+    @Before
+    public void prepareSource() throws IOException {
+        tempFile = tempFolder.newFile("temp.jpg");
 
-		// then
-		assertTrue(img.getWidth() < SIZE);
-		assertTrue(img.getWidth() >= 600);
-		assertTrue(img.getHeight() < SIZE);
-		assertTrue(img.getHeight() >= 600);
-	}
+        BufferedImage img = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = img.createGraphics();
+        g.setPaint(new GradientPaint(0, 0, Color.blue, SIZE, SIZE, Color.red));
+        g.dispose();
+        ImageIO.write(img, "jpg", tempFile);
 
-	// Reproduces Issue 161.
-	// https://github.com/coobird/thumbnailator/issues/161
-	@Test
-	public void usingThumbnailsHeightWorkaroundEnabled() throws IOException {
-		// given
-		System.setProperty("thumbnailator.conserveMemoryWorkaround", "true");
+        System.setProperty("thumbnailator.conserveMemoryWorkaround", "");
+    }
 
-		// when
-		BufferedImage img = Thumbnails.of(tempFile).height(600).asBufferedImage();
+    @Test
+    public void fromFileBySizeWorkaroundDisabled() throws IOException {
+        // given
+        ThumbnailParameter param = new ThumbnailParameterBuilder().size(200, 200).build();
+        FileImageSource source = new FileImageSource(tempFile);
+        source.setThumbnailParameter(param);
 
-		// then
-		assertTrue(img.getWidth() < SIZE);
-		assertTrue(img.getWidth() >= 600);
-		assertTrue(img.getHeight() < SIZE);
-		assertTrue(img.getHeight() >= 600);
-	}
+        // when
+        BufferedImage img = source.read();
+
+        // then
+        assertEquals(SIZE, img.getWidth());
+        assertEquals(SIZE, img.getHeight());
+    }
+
+    @Test
+    public void fromFileBySizeWorkaroundEnabled() throws IOException {
+        // given
+        System.setProperty("thumbnailator.conserveMemoryWorkaround", "true");
+
+        ThumbnailParameter param = new ThumbnailParameterBuilder().size(200, 200).build();
+        FileImageSource source = new FileImageSource(tempFile);
+        source.setThumbnailParameter(param);
+
+        // when
+        BufferedImage img = source.read();
+
+        // then
+        assertTrue(img.getWidth() < SIZE);
+        assertTrue(img.getWidth() >= 600);
+        assertTrue(img.getHeight() < SIZE);
+        assertTrue(img.getHeight() >= 600);
+    }
+
+    @Test
+    public void fromFileByScaleWorkaroundDisabled() throws IOException {
+        // given
+        ThumbnailParameter param = new ThumbnailParameterBuilder().scale(0.1).build();
+        FileImageSource source = new FileImageSource(tempFile);
+        source.setThumbnailParameter(param);
+
+        // when
+        BufferedImage img = source.read();
+
+        // then
+        assertEquals(SIZE, img.getWidth());
+        assertEquals(SIZE, img.getHeight());
+    }
+
+    @Test
+    public void fromFileByScaleWorkaroundEnabled() throws IOException {
+        // given
+        System.setProperty("thumbnailator.conserveMemoryWorkaround", "true");
+
+        ThumbnailParameter param = new ThumbnailParameterBuilder().scale(0.1).build();
+        FileImageSource source = new FileImageSource(tempFile);
+        source.setThumbnailParameter(param);
+
+        // when
+        BufferedImage img = source.read();
+
+        // then
+        assertTrue(img.getWidth() < SIZE);
+        assertTrue(img.getWidth() >= 600);
+        assertTrue(img.getHeight() < SIZE);
+        assertTrue(img.getHeight() >= 600);
+    }
+
+    // Reproduces Issue 161.
+    // https://github.com/coobird/thumbnailator/issues/161
+    @Test
+    public void usingThumbnailsWidthWorkaroundEnabled() throws IOException {
+        // given
+        System.setProperty("thumbnailator.conserveMemoryWorkaround", "true");
+
+        // when
+        BufferedImage img = Thumbnails.of(tempFile).width(600).asBufferedImage();
+
+        // then
+        assertTrue(img.getWidth() < SIZE);
+        assertTrue(img.getWidth() >= 600);
+        assertTrue(img.getHeight() < SIZE);
+        assertTrue(img.getHeight() >= 600);
+    }
+
+    // Reproduces Issue 161.
+    // https://github.com/coobird/thumbnailator/issues/161
+    @Test
+    public void usingThumbnailsHeightWorkaroundEnabled() throws IOException {
+        // given
+        System.setProperty("thumbnailator.conserveMemoryWorkaround", "true");
+
+        // when
+        BufferedImage img = Thumbnails.of(tempFile).height(600).asBufferedImage();
+
+        // then
+        assertTrue(img.getWidth() < SIZE);
+        assertTrue(img.getWidth() >= 600);
+        assertTrue(img.getHeight() < SIZE);
+        assertTrue(img.getHeight() >= 600);
+    }
 }

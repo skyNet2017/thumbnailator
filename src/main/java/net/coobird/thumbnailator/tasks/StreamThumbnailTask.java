@@ -42,58 +42,57 @@ import net.coobird.thumbnailator.tasks.io.OutputStreamImageSink;
  * <p>
  * Only the first image obtained from the data stream will be read. Subsequent
  * images will be ignored.
- * 
- * @author coobird
  *
+ * @author coobird
  */
 public class StreamThumbnailTask extends ThumbnailTask<InputStream, OutputStream> {
-	/**
-	 * The {@link SourceSinkThumbnailTask} used to perform the task.
-	 */
-	private final SourceSinkThumbnailTask<InputStream, OutputStream> task;
-	
-	/**
-	 * Creates a {@link ThumbnailTask} in which streamed image data from the
-	 * specified {@link InputStream} is output to a specified
-	 * {@link OutputStream}, using the parameters provided in the specified
-	 * {@link ThumbnailParameter}.
-	 * 
-	 * @param param		The parameters to use to create the thumbnail.
-	 * @param is		The {@link InputStream} from which to obtain image data.
-	 * @param os		The {@link OutputStream} to send thumbnail data to.
-	 * @throws NullPointerException		If the parameter is {@code null}.
-	 */
-	public StreamThumbnailTask(ThumbnailParameter param, InputStream is, OutputStream os) {
-		super(param);
-		this.task = new SourceSinkThumbnailTask<InputStream, OutputStream>(
-				param,
-				new InputStreamImageSource(is),
-				new OutputStreamImageSink(os)
-		);
-	}
+    /**
+     * The {@link SourceSinkThumbnailTask} used to perform the task.
+     */
+    private final SourceSinkThumbnailTask<InputStream, OutputStream> task;
 
-	@Override
-	public BufferedImage read() throws IOException {
-		return task.read();
-	}
+    /**
+     * Creates a {@link ThumbnailTask} in which streamed image data from the
+     * specified {@link InputStream} is output to a specified
+     * {@link OutputStream}, using the parameters provided in the specified
+     * {@link ThumbnailParameter}.
+     *
+     * @param param The parameters to use to create the thumbnail.
+     * @param is    The {@link InputStream} from which to obtain image data.
+     * @param os    The {@link OutputStream} to send thumbnail data to.
+     * @throws NullPointerException If the parameter is {@code null}.
+     */
+    public StreamThumbnailTask(ThumbnailParameter param, InputStream is, OutputStream os) {
+        super(param);
+        this.task = new SourceSinkThumbnailTask<InputStream, OutputStream>(
+                param,
+                new InputStreamImageSource(is),
+                new OutputStreamImageSink(os)
+        );
+    }
 
-	@Override
-	public void write(BufferedImage img) throws IOException {
-		task.write(img);
-	}
+    @Override
+    public BufferedImage read() throws IOException {
+        return task.read();
+    }
 
-	@Override
-	public ThumbnailParameter getParam() {
-		return task.getParam();
-	}
-	
-	@Override
-	public InputStream getSource() {
-		return task.getSource();
-	}
+    @Override
+    public void write(BufferedImage img) throws IOException {
+        task.write(img);
+    }
 
-	@Override
-	public OutputStream getDestination() {
-		return task.getDestination();
-	}
+    @Override
+    public ThumbnailParameter getParam() {
+        return task.getParam();
+    }
+
+    @Override
+    public InputStream getSource() {
+        return task.getSource();
+    }
+
+    @Override
+    public OutputStream getDestination() {
+        return task.getDestination();
+    }
 }

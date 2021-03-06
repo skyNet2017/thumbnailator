@@ -36,16 +36,15 @@ import java.awt.image.BufferedImage;
  * <p>
  * The filter should make a copy of the given {@link BufferedImage}, and
  * perform the filtering operations on the copy, then return the copy.
- * 
- * @author coobird
  *
+ * @author coobird
  */
 public interface ImageFilter {
-	/**
-	 * Applies a image filtering operation on an image.
-	 * 
-	 * @param img		The image to apply the filtering on.
-	 * @return			The resulting image after applying this filter.
-	 */
-	public BufferedImage apply(BufferedImage img);
+    /**
+     * Applies a image filtering operation on an image.
+     *
+     * @param img The image to apply the filtering on.
+     * @return The resulting image after applying this filter.
+     */
+    public BufferedImage apply(BufferedImage img);
 }

@@ -37,7 +37,7 @@ import java.awt.Dimension;
  * The {@link Resizer}s returned by this {@link ResizerFactory} depends upon
  * the size of the source and destination images. The conditions and the
  * {@link Resizer}s returned are as follows:
- * 
+ *
  * <ul>
  * <li>Default via {@link #getResizer()}
  * 	<ul><li>{@link ProgressiveBilinearResizer}</li></ul>
@@ -67,7 +67,7 @@ import java.awt.Dimension;
  * </ul>
  * </dd>
  * </dl>
- * 
+ *
  * <DL>
  * <DT><B>Usage:</B></DT>
  * <DD>
@@ -76,70 +76,68 @@ import java.awt.Dimension;
  * perform the resizing operation.
  * <p>
  * <pre>
-BufferedImage sourceImage = new BufferedImageBuilder(400, 400).build();
-BufferedImage destImage = new BufferedImageBuilder(200, 200).build();
-
-Dimension sourceSize = new Dimension(sourceImage.getWidth(), sourceImage.getHeight());
-Dimension destSize = new Dimension(destImage.getWidth(), destImage.getHeight());
-
-// Obtain the optimal Resizer for this resizing operation.
-Resizer resizer = DefaultResizerFactory.getInstance().getResizer(sourceSize, destSize);
-
-// Perform the resizing using the Resizer obtained from the ResizerFactory.
-resizer.resize(sourceImage, destImage);
+ * BufferedImage sourceImage = new BufferedImageBuilder(400, 400).build();
+ * BufferedImage destImage = new BufferedImageBuilder(200, 200).build();
+ *
+ * Dimension sourceSize = new Dimension(sourceImage.getWidth(), sourceImage.getHeight());
+ * Dimension destSize = new Dimension(destImage.getWidth(), destImage.getHeight());
+ *
+ * // Obtain the optimal Resizer for this resizing operation.
+ * Resizer resizer = DefaultResizerFactory.getInstance().getResizer(sourceSize, destSize);
+ *
+ * // Perform the resizing using the Resizer obtained from the ResizerFactory.
+ * resizer.resize(sourceImage, destImage);
  * </pre>
  * </DD>
  * </DL>
  * When a specific {@link Resizer} is required, the {@link Resizers}
  * {@code enum} is another way to obtain {@link Resizer}s.
  * <p>
- * 
- * @see Resizers
  *
  * @author coobird
- * @since	0.4.0
- *
+ * @since 0.4.0
+ * @see Resizers
  */
 public class DefaultResizerFactory implements ResizerFactory {
-	private static final DefaultResizerFactory INSTANCE = new DefaultResizerFactory();
+    private static final DefaultResizerFactory INSTANCE = new DefaultResizerFactory();
 
-	/**
-	 * This class is not intended to be instantiated via the constructor.
-	 */
-	private DefaultResizerFactory() {}
-	
-	/**
-	 * Returns an instance of this class.
-	 * 
-	 * @return		An instance of this class.
-	 */
-	public static ResizerFactory getInstance() {
-		return INSTANCE;
-	}
-	
-	public Resizer getResizer() {
-		return Resizers.PROGRESSIVE;
-	}
-	
-	public Resizer getResizer(Dimension originalSize, Dimension thumbnailSize) {
-		int origWidth = originalSize.width;
-		int origHeight = originalSize.height;
-		int thumbWidth = thumbnailSize.width;
-		int thumbHeight = thumbnailSize.height;
-		
-		if (thumbWidth < origWidth && thumbHeight < origHeight) {
-			if (thumbWidth < (origWidth / 2) && thumbHeight < (origHeight / 2)) {
-				return Resizers.PROGRESSIVE;
-			} else {
-				return Resizers.BILINEAR;
-			}
-		}
-		else if (thumbWidth > origWidth && thumbHeight > origHeight) {
-			return Resizers.BICUBIC;
-		} else if (thumbWidth == origWidth && thumbHeight == origHeight) {
-			return Resizers.NULL;
-		} else {
-			return getResizer();
-		}
-	}
+    /**
+     * This class is not intended to be instantiated via the constructor.
+     */
+    private DefaultResizerFactory() {
+    }
+
+    /**
+     * Returns an instance of this class.
+     *
+     * @return An instance of this class.
+     */
+    public static ResizerFactory getInstance() {
+        return INSTANCE;
+    }
+
+    public Resizer getResizer() {
+        return Resizers.PROGRESSIVE;
+    }
+
+    public Resizer getResizer(Dimension originalSize, Dimension thumbnailSize) {
+        int origWidth = originalSize.width;
+        int origHeight = originalSize.height;
+        int thumbWidth = thumbnailSize.width;
+        int thumbHeight = thumbnailSize.height;
+
+        if (thumbWidth < origWidth && thumbHeight < origHeight) {
+            if (thumbWidth < (origWidth / 2) && thumbHeight < (origHeight / 2)) {
+                return Resizers.PROGRESSIVE;
+            } else {
+                return Resizers.BILINEAR;
+            }
+        } else if (thumbWidth > origWidth && thumbHeight > origHeight) {
+            return Resizers.BICUBIC;
+        } else if (thumbWidth == origWidth && thumbHeight == origHeight) {
+            return Resizers.NULL;
+        } else {
+            return getResizer();
+        }
+    }
 }

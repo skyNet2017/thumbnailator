@@ -37,55 +37,54 @@ import org.junit.Test;
 
 /**
  * Tests for the {@link Colorize} filter.
- * 
- * @author coobird
  *
+ * @author coobird
  */
 public class ColorizeTest {
 
-	/**
-	 * Checks that the input image contents are not altered.
-	 */
-	@Test
-	public void inputContentsAreNotAltered() {
-		// given
-		BufferedImage originalImage = new BufferedImage(200, 200, BufferedImage.TYPE_INT_ARGB);
-		BufferedImage copyImage = BufferedImages.copy(originalImage);
-		
-		ImageFilter filter = new Colorize(Color.blue);
-		
-		// when
-		filter.apply(originalImage);
-		
-		// then
-		assertTrue(BufferedImageComparer.isSame(originalImage, copyImage));
-	}
+    /**
+     * Checks that the input image contents are not altered.
+     */
+    @Test
+    public void inputContentsAreNotAltered() {
+        // given
+        BufferedImage originalImage = new BufferedImage(200, 200, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage copyImage = BufferedImages.copy(originalImage);
 
-	/**
-	 * Checks that the input image contents are not altered for constructor with alpha.
-	 */
-	@Test
-	public void inputContentsAreNotAltered_alphaConstructor() {
-		// given
-		BufferedImage originalImage = new BufferedImage(200, 200, BufferedImage.TYPE_INT_ARGB);
-		BufferedImage copyImage = BufferedImages.copy(originalImage);
+        ImageFilter filter = new Colorize(Color.blue);
 
-		ImageFilter filter = new Colorize(Color.blue, 0.5f);
+        // when
+        filter.apply(originalImage);
 
-		// when
-		filter.apply(originalImage);
+        // then
+        assertTrue(BufferedImageComparer.isSame(originalImage, copyImage));
+    }
 
-		// then
-		assertTrue(BufferedImageComparer.isSame(originalImage, copyImage));
-	}
+    /**
+     * Checks that the input image contents are not altered for constructor with alpha.
+     */
+    @Test
+    public void inputContentsAreNotAltered_alphaConstructor() {
+        // given
+        BufferedImage originalImage = new BufferedImage(200, 200, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage copyImage = BufferedImages.copy(originalImage);
 
-	@Test
-	public void imageTypeForInputAndOutputIsTheSame() {
-		assertImageTypeRetained(new Colorize(Color.blue));
-	}
+        ImageFilter filter = new Colorize(Color.blue, 0.5f);
 
-	@Test
-	public void imageTypeForInputAndOutputIsTheSame_alphaConstructor() {
-		assertImageTypeRetained(new Colorize(Color.blue, 0.5f));
-	}
+        // when
+        filter.apply(originalImage);
+
+        // then
+        assertTrue(BufferedImageComparer.isSame(originalImage, copyImage));
+    }
+
+    @Test
+    public void imageTypeForInputAndOutputIsTheSame() {
+        assertImageTypeRetained(new Colorize(Color.blue));
+    }
+
+    @Test
+    public void imageTypeForInputAndOutputIsTheSame_alphaConstructor() {
+        assertImageTypeRetained(new Colorize(Color.blue, 0.5f));
+    }
 }
