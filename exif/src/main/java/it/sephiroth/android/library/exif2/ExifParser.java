@@ -122,7 +122,7 @@ class ExifParser {
             throw new IOException("Null argument inputStream to ExifParser");
         }
 
-        System.out.println(TAG + "Reading exif...");
+        //System.out.println(TAG + "Reading exif...");
         mSections = new ArrayList<Section>(0);
 
         mInterface = iRef;

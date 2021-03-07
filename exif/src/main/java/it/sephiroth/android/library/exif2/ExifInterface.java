@@ -1024,7 +1024,7 @@ public class ExifInterface {
 
     @SuppressWarnings("unused")
     public void writeExif(final String dstFilename) throws IOException {
-        System.out.println(TAG + "writeExif: " + dstFilename);
+        //System.out.println(TAG + "writeExif: " + dstFilename);
 
         // create a backup file
         File dst_file = new File(dstFilename);
@@ -1098,7 +1098,7 @@ public class ExifInterface {
 
     @SuppressWarnings("unused")
     public void writeExif(final String srcFilename, final String dstFilename) throws IOException {
-        System.out.println(TAG + "writeExif: " + dstFilename);
+        //System.out.println(TAG + "writeExif: " + dstFilename);
 
         // src and dst cannot be the same
         if (srcFilename.equals(dstFilename)) return;
@@ -1123,7 +1123,7 @@ public class ExifInterface {
     }
 
     public void writeExif(final InputStream input, final String dstFilename) throws IOException {
-        System.out.println(TAG + "writeExif: " + dstFilename);
+        //System.out.println(TAG + "writeExif: " + dstFilename);
 
         // inpur is used *ONLY* to read the image uncompressed data
         // exif tags are not used here
@@ -1140,7 +1140,7 @@ public class ExifInterface {
 
     @SuppressWarnings("unused")
     public void writeExif(final BufferedImage input, final String dstFilename, int quality) throws IOException {
-        System.out.println(TAG + "writeExif: " + dstFilename);
+        //System.out.println(TAG + "writeExif: " + dstFilename);
 
         // inpur is used *ONLY* to read the image uncompressed data
         // exif tags are not used here

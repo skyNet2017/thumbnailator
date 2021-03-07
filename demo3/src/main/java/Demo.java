@@ -3,14 +3,11 @@ import java.io.File;
 public class Demo {
 
     public static void main(String[] args) {
+        File dir = new File("D:\\00imagecompress");
+        ImageCompressor.compressImagesInDir(dir.getAbsolutePath(),85);
 
-
-        File file = new File("/Users/hss/Downloads/IMG_20200628_111551.jpg");
-        File out = new File("/Users/hss/Downloads/IMG_20200628_111551-compressed.jpg");
-        File out2 = new File("/Users/hss/Downloads/thumbnail.IMG_20200628_111551.jpg");
-
-        File dir = new File("D:\\00压缩测试");
-        File dir2 = new File("D:\\00压缩测试\\thumbnailator");
+       /* File dir = new File("D:\\迅雷下载\\【泄密资源】高校毕业生母狗雯雯怀孕被绿帽渣男流出 附高清无水印照488P\\P");
+        File dir2 = new File(dir,"thumbnailator");
         dir2.mkdirs();
         File[] files = dir.listFiles();
         long start = System.currentTimeMillis();
@@ -23,7 +20,7 @@ public class Demo {
                     || file1.getName().endsWith(".jpeg") || file1.getName().endsWith(".JPEG")) {
                 sizeBefore += file1.length();
                 File destFile = new File(dir2, file1.getName());
-                ImageCompressor.compressToQuality(file1.getAbsolutePath(), destFile.getAbsolutePath(), 80);
+                ImageCompressor.compressToQuality(file1.getAbsolutePath(), 80);
                 sizeAfter += destFile.length();
                 if (destFile.length() == 0) {
                     System.out.println("压缩/拷贝失败:" + destFile);
@@ -31,7 +28,7 @@ public class Demo {
             }
         }
         System.out.println("cost:" + (System.currentTimeMillis() - start) / 1000 + "s,文件总大小:"
-                + ImageCompressor.formatFileSize(sizeBefore) + " -> " + ImageCompressor.formatFileSize(sizeAfter));
+                + ImageCompressor.formatFileSize(sizeBefore) + " -> " + ImageCompressor.formatFileSize(sizeAfter));*/
 
        /* String path = "D:\\Nikon\\DSC_0229.JPG";
         File in = new File(path);

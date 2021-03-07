@@ -50,24 +50,40 @@ public class ImageCompressor {
 
     public static void compressImagesInDir(final String dirPath, final int quality) {
         if (service == null) {
-            service = Executors.newFixedThreadPool(8);
+            service = Executors.newFixedThreadPool(4);
         }
 
+        System.out.println(Thread.currentThread().getName()+"->开始遍历文件夹: " + dirPath);
         service.execute(new Runnable() {
             @Override
             public void run() {
                 File dir = new File(dirPath);
                 File[] files = dir.listFiles();
+                long start = System.currentTimeMillis();
+                long sizeBefore = 0;
+                long sizeAfter = 0;
+
                 for (File file1 : files) {
                     if (file1.isDirectory()) {
-                        compressImagesInDir(dirPath, quality);
+                        compressImagesInDir(file1.getAbsolutePath(), quality);
                     } else {
-                        if (file1.getName().endsWith(".jpg") || file1.getName().endsWith(".png") || file1.getName().endsWith(".jpeg")
-                                || file1.getName().endsWith(".JPG") || file1.getName().endsWith(".PNG") || file1.getName().endsWith(".JPEG")) {
+                        if (file1.getName().endsWith(".jpg") || file1.getName().endsWith(".JPG")
+                                || file1.getName().endsWith(".png")
+                                || file1.getName().endsWith(".PNG")
+                                || file1.getName().endsWith(".jpeg") || file1.getName().endsWith(".JPEG")) {
+                            sizeBefore += file1.length();
+
                             ImageCompressor.compressToQuality(file1.getAbsolutePath(), quality);
+                            sizeAfter += file1.length();
+                            if (file1.length() == 0) {
+                                System.out.println("压缩/拷贝失败:" + file1.getAbsolutePath());
+                            }
                         }
                     }
                 }
+                System.out.println("文件夹压缩: cost:" + (System.currentTimeMillis() - start) / 1000 + "s,文件总大小:"
+                        + ImageCompressor.formatFileSize(sizeBefore) + " -> "
+                        + ImageCompressor.formatFileSize(sizeAfter)+"  文件夹路径:"+dirPath);
             }
         });
 
@@ -83,12 +99,14 @@ public class ImageCompressor {
         }
 
         try {
+            System.out.println(Thread.currentThread().getName()+"->开始准备压缩: " + path);
             File file = new File(path);
+            long originalSize = file.length();
             String name = file.getName();
-            boolean needCopyFile = true;
+            boolean isCompressToOtherPath = true;
             if (outPath == null || "".equals(outPath)) {
                 outPath = path;
-                needCopyFile = false;
+                isCompressToOtherPath = false;
             }
 
          /* String type =   MimeTable.loadTable().getContentTypeFor(name);
@@ -107,7 +125,7 @@ public class ImageCompressor {
             }
             if (file.length() < 50 * 1024) {
                 System.out.println("文件小于50k,不压 :" + path);
-                if (needCopyFile) {
+                if (isCompressToOtherPath) {
                     ExifInterface.copyFile2(file, new File(outPath));
                 }
                 return true;
@@ -117,14 +135,14 @@ public class ImageCompressor {
 
             if (name.endsWith(".webp")) {
                 System.out.println("webp 不压缩");
-                if (needCopyFile) {
+                if (isCompressToOtherPath) {
                     ExifInterface.copyFile2(file, new File(outPath));
                 }
                 return true;
             }
             if (name.endsWith(".gif")) {
                 System.out.println("gif 不压缩");
-                if (needCopyFile) {
+                if (isCompressToOtherPath) {
                     ExifInterface.copyFile2(file, new File(outPath));
                 }
                 return true;
@@ -132,28 +150,34 @@ public class ImageCompressor {
             if (name.endsWith(".png") || name.endsWith(".PNG")) {
                 path = path.substring(0, path.lastIndexOf(".")) + ".jpg";
                 out = new File(path);
-                deleteOriginal = true;
+                if(!isCompressToOtherPath){
+                    deleteOriginal = true;
+                }
+
                 System.out.println("png 压缩后更换后缀,并删除原文件:" + path);
             }
             if (out == null) {
                 out = new File(outPath);
             }
-            ExifInterface exif = printExif(file);
+            boolean[] hasExif = new boolean[]{false};
+            ExifInterface exif = printExif(file,hasExif);
 
             //Metadata metadata = ImageMetadataReader.readMetadata(file);
-            if (exif != null) {
+
                 int jpeg_quality = exif.getQualityGuess();
-                if (jpeg_quality < quality && jpeg_quality > 0) {
-                    System.out.println("图片质量>0且小于" + quality + ",无需压缩:" + file.getAbsolutePath());
-                    if (needCopyFile) {
+                if (jpeg_quality <= quality && jpeg_quality > 0) {
+                    System.out.println("图片质量>0且小于等于" + quality + ",无需压缩:" + file.getAbsolutePath());
+                    if (isCompressToOtherPath) {
                         ExifInterface.copyFile2(file, new File(outPath));
                     }
                     return true;
                 }
-            }
 
 
-            File tmp = new File(out.getParentFile(), "compressxxx-" + out.getName());
+
+                String suffix = out.getName().substring(0,out.getName().lastIndexOf("."))
+                        +"-comp"+out.getName().substring(out.getName().lastIndexOf("."));
+            File tmp = new File(out.getParentFile(), suffix);
             tmp.createNewFile();
             Thumbnails.of(file)
                     .outputFormat("jpg")
@@ -163,55 +187,45 @@ public class ImageCompressor {
             if (file.length() < tmp.length()) {
                 System.out.println("压缩后反而变大,文件不要了,不压了: " + file.getAbsolutePath());
                 tmp.delete();
-                if (needCopyFile) {
+                if (isCompressToOtherPath) {
                     ExifInterface.copyFile2(file, new File(outPath));
                 }
                 return true;
             }
-            System.out.println("文件拷贝:" + out.getAbsolutePath() + "\n->" + tmp.getAbsolutePath());
+            //new FileInputStream(tmp).readAllBytes();
+            if (hasExif[0]) {
+                ExifInterface exif2 = new ExifInterface();
+                try {
+                    //exif2.readExif(path, ExifInterface.Options.OPTION_ALL);
+                    exif2.setExif(exif.getAllTags());
+                    System.out.println("写exif: getAllTags:" + exif.getAllTags().size());
+                    exif2.writeExif(tmp.getAbsolutePath());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                //printExif(out);
+            }
+
+            System.out.println("文件拷贝:" + tmp.getAbsolutePath() + "\n->" + out.getAbsolutePath());
             //tmp拷贝到out,同时删除tmp
             boolean success1 = copyFile(tmp, out.getAbsolutePath());
             if (!success1) {
                 System.out.println("文件拷贝失败,删除临时文件: " + tmp.getAbsolutePath());
                 tmp.delete();
-                if (needCopyFile) {
+                if (isCompressToOtherPath) {
                     ExifInterface.copyFile2(file, new File(outPath));
                 }
                 return false;
             }
             tmp.delete();
-
-            //new FileInputStream(tmp).readAllBytes();
-            if (exif != null) {
-                //ExifInterface exifInterface = new ExifInterface();
-                //exifInterface.setExif(exif.getAllTags());
-                //System.out.println( "getAllTags:"+ Arrays.toString(exif.getAllTags().toArray()));
-                ExifInterface exif2 = new ExifInterface();
-                try {
-                   /* ExifTool tool = new ExifTool();
-                    Map<ExifTool.Tag, String> imageMeta = tool.getImageMeta(file, ExifTool.Tag.SHUTTER_SPEED);
-
-                    ExifTool tool2 = new ExifTool();
-                    tool2.setImageMeta(out, ExifTool.Format.NUMERIC,imageMeta);*/
-
-
-                    exif2.readExif(path, ExifInterface.Options.OPTION_ALL);
-                    System.out.println("getAllTags:" + exif.getAllTags().size());
-                    exif2.setExif(exif.getAllTags());
-                    exif2.writeExif(outPath);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                printExif(out);
-            }
-
+            System.out.println("cost time: " + (System.currentTimeMillis() - start)
+                    + " msec,file size:" + formatFileSize(originalSize) + "->" +
+                    formatFileSize(out.length()) + ",reduce " + ((originalSize - out.length()) * 100 / originalSize) + "%," + path);
             if (deleteOriginal) {
                 boolean success = file.delete();
                 System.out.println("png 压缩后删除原文件 是否成功:" + success + " , path: " + path);
             }
-            System.out.println("Total time: " + (System.currentTimeMillis() - start)
-                    + " msec,file size:" + formatFileSize(file.length()) + "->" +
-                    formatFileSize(out.length()) + ",compress " + ((file.length() - out.length()) * 100 / file.length()) + "%," + path);
+
             return true;
         } catch (Throwable e) {
             e.printStackTrace();
@@ -247,7 +261,7 @@ public class ImageCompressor {
     }
 
 
-    private static ExifInterface printExif(File file) {
+    private static ExifInterface printExif(File file,boolean[] hasExif) {
         ExifInterface exif = new ExifInterface();
         try {
             exif.readExif(file.getAbsolutePath(), ExifInterface.Options.OPTION_ALL);
@@ -265,7 +279,7 @@ public class ImageCompressor {
                         if (str != null) {
                             str = str.trim();
                         }
-                        //System.out.println(tagDes.get(tagId) + " : " + str);
+                        System.out.println(tagDes.get(tagId) + " : " + str);
                         //System.out.println( tag.toString());
 
                     } else {
@@ -280,13 +294,24 @@ public class ImageCompressor {
 
             System.out.println(file.getAbsolutePath() + "  quality:" + jpeg_quality);
             if (all_tags == null || all_tags.isEmpty()) {
-                return null;
+                if(hasExif != null){
+                    hasExif[0] = false;
+                }
+
+
+                return exif;
+            }
+            if(hasExif != null){
+                hasExif[0] = true;
             }
             return exif;
 
 
         } catch (Throwable throwable) {
             throwable.printStackTrace();
+            if(hasExif != null){
+                hasExif[0] = false;
+            }
         }
         return exif;
     }
