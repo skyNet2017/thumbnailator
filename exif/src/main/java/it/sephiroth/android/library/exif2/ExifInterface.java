@@ -30,9 +30,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.sun.deploy.cache.Cache.copyFile;
-
 /**
+ *
+ * https://exiftool.org/TagNames/EXIF.html
+ *
  * This class provides methods and constants for reading and writing jpeg file
  * metadata. It contains a collection of ExifTags, and a collection of
  * definitions for creating valid ExifTags. The collection of ExifTags can be

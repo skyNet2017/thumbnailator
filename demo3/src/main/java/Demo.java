@@ -3,8 +3,8 @@ import java.io.File;
 public class Demo {
 
     public static void main(String[] args) {
-        File dir = new File("D:\\00imagecompress");
-        ImageCompressor.compressImagesInDir(dir.getAbsolutePath(),85);
+        //File dir = new File("D:\\00imagecompress");
+       // ImageCompressor.compressImagesInDir(dir.getAbsolutePath(),85);
 
        /* File dir = new File("D:\\迅雷下载\\【泄密资源】高校毕业生母狗雯雯怀孕被绿帽渣男流出 附高清无水印照488P\\P");
         File dir2 = new File(dir,"thumbnailator");
@@ -30,10 +30,10 @@ public class Demo {
         System.out.println("cost:" + (System.currentTimeMillis() - start) / 1000 + "s,文件总大小:"
                 + ImageCompressor.formatFileSize(sizeBefore) + " -> " + ImageCompressor.formatFileSize(sizeAfter));*/
 
-       /* String path = "D:\\Nikon\\DSC_0229.JPG";
+        String path = "/Users/hss/java/thumbnailator/testpic/1601370950825-IMG_20190923_230641.jpg";
         File in = new File(path);
         File out3 = new File(in.getParentFile(),"compress3-"+in.getName());
-        ImageCompressor.compressToQuality(path,out3.getAbsolutePath(),80);*/
+        ImageCompressor.compressToQuality(path,out3.getAbsolutePath(),40);
 
 
     }

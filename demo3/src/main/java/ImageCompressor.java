@@ -1,6 +1,3 @@
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.metadata.Metadata;
-import com.sun.javafx.iio.ImageMetadata;
 import it.sephiroth.android.library.exif2.ExifInterface;
 import it.sephiroth.android.library.exif2.ExifTag;
 import net.coobird.thumbnailator.Thumbnails;
@@ -10,7 +7,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -196,6 +192,7 @@ public class ImageCompressor {
             if (hasExif[0]) {
                 ExifInterface exif2 = new ExifInterface();
                 try {
+                    exif.setTagValue(ExifInterface.TAG_ORIENTATION,0);
                     //exif2.readExif(path, ExifInterface.Options.OPTION_ALL);
                     exif2.setExif(exif.getAllTags());
                     System.out.println("写exif: getAllTags:" + exif.getAllTags().size());
