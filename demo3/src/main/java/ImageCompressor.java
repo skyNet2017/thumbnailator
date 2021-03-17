@@ -258,7 +258,7 @@ public class ImageCompressor {
     }
 
 
-    private static ExifInterface printExif(File file,boolean[] hasExif) {
+     static ExifInterface printExif(File file,boolean[] hasExif) {
         ExifInterface exif = new ExifInterface();
         try {
             exif.readExif(file.getAbsolutePath(), ExifInterface.Options.OPTION_ALL);

@@ -30,10 +30,12 @@ public class Demo {
         System.out.println("cost:" + (System.currentTimeMillis() - start) / 1000 + "s,文件总大小:"
                 + ImageCompressor.formatFileSize(sizeBefore) + " -> " + ImageCompressor.formatFileSize(sizeAfter));*/
 
-        String path = "/Users/hss/java/thumbnailator/testpic/1601370950825-IMG_20190923_230641.jpg";
+        String path = "/Users/hss/Library/Containers/com.tencent.WeWorkMac/Data/Library/Application Support/WXWork/Data/1688853798357608/Cache/File/2021-03/2302_11373507.jpg";
         File in = new File(path);
         File out3 = new File(in.getParentFile(),"compress3-"+in.getName());
-        ImageCompressor.compressToQuality(path,out3.getAbsolutePath(),40);
+        //ImageCompressor.compressToQuality(path,out3.getAbsolutePath(),40);
+
+        ImageCompressor.printExif(in,null);
 
 
     }
