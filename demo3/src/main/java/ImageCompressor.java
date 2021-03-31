@@ -2,6 +2,8 @@ import it.sephiroth.android.library.exif2.ExifInterface;
 import it.sephiroth.android.library.exif2.ExifTag;
 import net.coobird.thumbnailator.Thumbnails;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -133,6 +135,7 @@ public class ImageCompressor {
                 System.out.println("webp 不压缩");
                 if (isCompressToOtherPath) {
                     ExifInterface.copyFile2(file, new File(outPath));
+                    printExif(file,null);
                 }
                 return true;
             }
@@ -284,12 +287,12 @@ public class ImageCompressor {
                     }
                 }
             } else {
-                System.out.println(file.getAbsolutePath() + "  no exif info");
+                //System.out.println(file.getAbsolutePath() + "  no exif info");
             }
 // jpeg quality
             int jpeg_quality = exif.getQualityGuess();
-
-            System.out.println(file.getAbsolutePath() + "  quality:" + jpeg_quality);
+            BufferedImage sourceImg = ImageIO.read(new FileInputStream(file));
+            System.out.println(file.getAbsolutePath() + "  quality:" + jpeg_quality+", length: "+file.length()/1024+"kb, 尺寸:"+sourceImg.getWidth()+"x"+sourceImg.getHeight());
             if (all_tags == null || all_tags.isEmpty()) {
                 if(hasExif != null){
                     hasExif[0] = false;
